@@ -118,8 +118,9 @@ export class Visual implements IVisual {
                 id: "claude",
                 name: "Anthropic Claude",
                 defaultEndpoint: "https://api.anthropic.com/v1/messages",
-                models: ["claude-3-opus-20240229", "claude-3-sonnet-20240229", "claude-3-haik requiresEndpoint: false
- },
+                models: ["claude-3-opus-20240229", "claude-3-sonnet-20240229", "claude-3-haiku-20240307"],
+                requiresEndpoint: false
+            },
             {
                 id: "gemini",
                 name: "Google Gemini",
@@ -244,7 +245,9 @@ export class Visual implements IVisual {
                     if (col.isMeasure) {
                         const measureName = col.displayName || col.queryName || "度量值";
                         const firstRowVal = rows.length > 0 ? rows[0][idx] : null;
-                        const measureValue = (firstRowVal !== null && firstRowVal !== undefin const formattedValue = (firstRowVal !== null && firstRowVal !== undef this.reportContext.measures.push({
+                        const measureValue = (firstRowVal !== null && firstRowVal !== undefined) ? firstRowVal : null;
+                        const formattedValue = (firstRowVal !== null && firstRowVal !== undefined) ? String(firstRowVal) : "N/A";
+                        this.reportContext.measures.push({
                             name: measureName,
                             value: measureValue as any,
                             formattedValue: formattedValue
@@ -272,20 +275,22 @@ export class Visual implements IVisual {
                     });
                     const sum = numericVals.reduce((a, b) => a + b, 0);
                     const measureValue = numericVals.length > 0 ? sum : null;
-                    const formattedValue = numericVals.length > 0 ? sum.toLocaleString("zh-CN this.reportContext.measures.push({
+                    const formattedValue = numericVals.length > 0 ? sum.toLocaleString("zh-CN") : "N/A";
+                    this.reportContext.measures.push({
  name: measureName,
                         value: measureValue,
                         formattedValue: formattedValue
  });
             });
-            const rowCount = categories.length > 0 ? (categories[0].values || []).length  this.reportContext.dataRowCount = rowCount;
+            const rowCount = categories.length > 0 ? (categories[0].values || []).length : 0;
+            this.reportContext.dataRowCount = rowCount;
             const maxRows = Math.min(rowCount, 50);
             for (let i = 0; i < maxRows; i++) {
                 const rowObj: TableRow = {};
                 categories.forEach(c => {
                     const colName = c.source.displayName || "维度";
                     const val = c.values[i];
-                    rowObj[colName] = (val === null || val === undefined) ? null : String
+                    rowObj[colName] = (val === null || val === undefined) ? null : String(val);
                 });
                 values.forEach(v => {
                     const colName = v.source.displayName || "度量值";
@@ -319,7 +324,8 @@ metadata.columns.forEach(col => {
         return;
     }
     const measureDisplayName = col.displayName || col.queryName;
-    const alreadyAdded = this.reportContext.measures.some(m => m.name === measure if (!alreadyAdded) {
+    const alreadyAdded = this.reportContext.measures.some(m => m.name === measureDisplayName);
+    if (!alreadyAdded) {
         this.reportContext.measures.push({
             name: measureDisplayName || "度量值",
             value: null,
@@ -340,7 +346,7 @@ metadata.columns.forEach(col => {
     const categories = dataView.categorical.categories;
     categories.forEach(cat => {
         const colType = cat.source.type;
-        const isDateColumn = colType && (colType.dateTime || String(colType).incl
+        const isDateColumn = colType && (colType.dateTime || String(colType).includes("Date"));
  if (isDateColumn) {
             const allVals = cat.values || [];
             const dates: Date[] = [];
@@ -357,7 +363,8 @@ metadata.columns.forEach(col => {
             if (dates.length > 0) {
                 dates.sort((a, b) => a.getTime() - b.getTime());
                 const minDate = dates[0].toLocaleDateString("zh-CN");
-                const maxDate = dates[dates.length - 1].toLocaleDateString("zh-CN this.reportContext.dateRange = minDate + " ⾄ " + maxDate;
+                const maxDate = dates[dates.length - 1].toLocaleDateString("zh-CN");
+                this.reportContext.dateRange = minDate + " ⾄ " + maxDate;
  }
         }
     });
@@ -371,14 +378,18 @@ metadata.columns.forEach(col => {
  // ============================================================
  private buildSystemPrompt(): string {
     const ctx = this.reportContext;
-    let prompt = "你是⼀位拥有 15 年经验的资深商业智能 (BI) 专家和⾸席数据分析师。你擅⻓从错综复杂的  prompt += "⽤户正在查看 Power BI 报表，你需要基于以下实时数据上下⽂回答⽤户的问题。你的任务是根据提 prompt += "请严格按照以下要求回答：请在分析时遵循以下思考链条（CoT）：环境认知：⾸先识别在当前的筛选 prompt += " === 当前报表上下⽂ ===\n";
+    let prompt = "你是⼀位拥有 15 年经验的资深商业智能 (BI) 专家和⾸席数据分析师。你擅⻓从错综复杂的数据中发现价值规律，并将复杂分析以清晰易懂的⽅式呈现。\n";
+    prompt += "⽤户正在查看 Power BI 报表，你需要基于以下实时数据上下⽂回答⽤户的问题。你的任务是根据提供的数据进⾏精准分析，给出有价值的洞察和建议。\n";
+    prompt += "请严格按照以下要求回答：请在分析时遵循以下思考链条（CoT）：环境认知：⾸先识别在当前的筛选条件下数据的范围和特征。\n";
+    prompt += " === 当前报表上下⽂ ===\n";
     prompt += "⻚⾯: " + ctx.pageName + "\n";
     prompt += "数据更新时间: " + ctx.lastUpdated + "\n";
     prompt += "总⾏数: " + ctx.dataRowCount + " ⾏（当前传⼊最多 50 ⾏⽤于分析）\n";
     if (ctx.filters.length > 0) {
         prompt += "\n当前筛选器:\n";
         ctx.filters.forEach(f => {
-            prompt += " - " + f.table + "." + f.column + ": " + f.values.join(", ") + "\n });
+            prompt += " - " + f.table + "." + f.column + ": " + f.values.join(", ") + "\n";
+        });
         } else {
             prompt += "\n当前筛选器: ⽆（显示全量数据）\n";
         }
@@ -393,7 +404,8 @@ metadata.columns.forEach(col => {
         }
         if (ctx.tableData.length > 0) {
             prompt += "\n数据样本（前 " + ctx.tableData.length + " ⾏）:\n";
-            const cols = ctx.columnNames.length > 0 ? ctx.columnNames : Object.keys(ctx.table prompt += cols.join("\t") + "\n";
+            const cols = ctx.columnNames.length > 0 ? ctx.columnNames : Object.keys(ctx.tableData[0]);
+            prompt += cols.join("\t") + "\n";
             ctx.tableData.forEach(row => {
                 const vals: string[] = [];
                 cols.forEach(c => {
@@ -434,7 +446,8 @@ metadata.columns.forEach(col => {
     html += ctx.dataRowCount + " ⾏ · ";
     html += ctx.measures.length + " 个度量值";
     html += "</span>";
-    html += "<span class=\"ctx-badge\">" + (hasData ? "数据已就绪" : "未绑定数据") + "</span this.contextBar.innerHTML = html;
+    html += "<span class=\"ctx-badge\">" + (hasData ? "数据已就绪" : "未绑定数据") + "</span>";
+    this.contextBar.innerHTML = html;
 }
  private createUI(): void {
     this.container = document.createElement("div");
