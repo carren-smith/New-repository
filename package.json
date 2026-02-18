@@ -1,0 +1,23 @@
+{
+ "name": "powerbi-chat-visual-v2",
+ "version": "2.0.0.0",
+ "description": "A chat interface custom visual for Power BI with OpenAI integration",
+ "main": "index.js",
+ "scripts": {
+  "build": "pbiviz package",
+  "start": "pbiviz start"
+ },
+ "author": "",
+ "license": "MIT",
+ "dependencies": {
+  "powerbi-visuals-api": "~5.3.0",
+  "powerbi-visuals-utils-formattingmodel": "^6.2.2"
+ },
+ "devDependencies": {
+  "@types/d3": "^7.4.0",
+  "powerbi-visuals-tools": "^5.0.0",
+  "powerbi-visuals-utils-dataviewutils": "^3.0.0",
+  "powerbi-visuals-utils-formattingutils": "^5.0.0",
+  "powerbi-visuals-utils-typeutils": "^3.0.0"
+ }
+}

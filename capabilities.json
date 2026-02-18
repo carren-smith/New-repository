@@ -1,0 +1,104 @@
+{
+    "dataRoles": [
+        {
+            "displayName": "数据字段",
+            "name": "dataFields",
+            "kind": "GroupingOrMeasure",
+            "description": "将报表字段或度量值拖⼊此处，AI 可读取并分析"
+        }
+    ],
+   "dataViewMappings": [
+    {
+        "table": {
+            "rows": {
+                "select": [
+                    {
+                        "for": {
+                            "in": "dataFields"
+                        }
+                    }
+                ],
+                "dataReductionAlgorithm": {
+                    "top": {
+                        "count": 1000
+                    }
+                }
+            }
+        }
+    }
+],
+    "objects": {
+        "chatSettings": {
+            "displayName": "Chat Settings",
+            "properties": {
+                "headerColor": {
+                    "displayName": "Header Color",
+                    "type": {
+                        "fill": {
+                            "solid": {
+                                "color": true
+                            }
+                        }
+                    }
+                },
+                "userMessageColor": {
+                    "displayName": "User Message Color",
+                    "type": {
+                        "fill": {
+                            "solid": {
+                                "color": true
+                            }
+                        }
+                    }
+                },
+                "botMessageColor": {
+                    "displayName": "Bot Message Color",
+                    "type": {
+                        "fill": {
+                            "solid": {
+                                "color": true
+                            }
+                        }
+                    }
+                },
+                "fontSize": {
+                    "displayName": "Font Size",
+                    "type": {
+                        "numeric": true
+                    }
+                },
+                "apiKey": {
+                    "displayName": "API Key",
+                    "type": {
+                        "text": true
+                    }
+                },
+                "modelName": {
+                    "displayName": "Model Name",
+                    "type": {
+                        "text": true
+                    }
+                }
+            }
+        }
+    },
+    "privileges": [
+        {
+            "name": "ExportContent",
+            "essential": false
+        },
+        {
+            "name": "WebAccess",
+            "essential": true,
+            "parameters": [
+                "https://api.openai.com",
+                "https://api.deepseek.com",
+                "https://api.anthropic.com",
+                "https://generativelanguage.googleapis.com"
+            ]
+        }
+    ],
+    "supportsLandingPage": false,
+    "supportsEmptyDataView": true,
+    "supportsSynchronizingFilterState": true
+}

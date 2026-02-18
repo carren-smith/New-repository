@@ -1,0 +1,25 @@
+{
+ "visual": {
+ "name": "ChatVisualV2",
+ "displayName": "ABI Chat Pro",
+ "guid": "ChatVisualV2_1234567890",
+ "visualClassName": "Visual",
+ "version": "2.0.0.0",
+ "description": "An AI-powered chat interface with OpenAI integration",
+ "supportUrl": "",
+ "gitHubUrl": ""
+ },
+ "apiVersion": "5.3.0",
+ "author": {
+ "name": "",
+ "email": ""
+ },
+ "assets": {
+ "icon": "assets/icon.png"
+ },
+ "externalJS": [],
+ "style": "style/visual.less",
+ "capabilities": "capabilities.json",
+ "dependencies": null,
+ "stringResources": []
+}
