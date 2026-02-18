@@ -118,7 +118,7 @@ export class Visual implements IVisual {
                 id: "claude",
                 name: "Anthropic Claude",
                 defaultEndpoint: "https://api.anthropic.com/v1/messages",
-                models: ["claude-3-opus-20240229", "claude-3-sonnet-20240229", "claude-3-haiku-20240307"],
+                models: ["claude-3-opus-20240229", "claude-3-sonnet-20240229", "claude-3-haik requiresEndpoint: false
  },
             {
                 id: "gemini",
