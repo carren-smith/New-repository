@@ -78,6 +78,7 @@ export class Visual implements IVisual {
     private contextBar: HTMLElement;
     private llmProviders: LLMProvider[];
     private suggestedQuestions: string[];
+    private cleanupInterval: number | undefined;
     constructor(options: VisualConstructorOptions) {
         this.target = options.element;
         this.host = options.host;
@@ -164,7 +165,9 @@ export class Visual implements IVisual {
             tableData: [],
             columnNames: [],
             dataRowCount: 0,
-            lastUpdated: new Date().toLocaleString("zh-CN")
+            lastUpdated: new Date().toLocaleString("zh-CN"),
+            dataSummary: "",
+            dateRange: ""
         };
         if (!dataViews || dataViews.length === 0 || !dataViews[0]) {
             this.updateContextBar();
@@ -1568,7 +1571,7 @@ this.saveChatHistory();
     }
 }
  private startHistoryCleanup(): void {
-    setInterval(() => {
+    this.cleanupInterval = setInterval(() => {
     try {
         const saved = localStorage.getItem("chatbot_history");
         if (saved) {
@@ -1586,6 +1589,12 @@ this.saveChatHistory();
 }, 60000);
  }
  public destroy(): void {
-    // 清理资源
+    if (this.cleanupInterval !== undefined) {
+        clearInterval(this.cleanupInterval);
+        this.cleanupInterval = undefined;
+    }
+    if (this.container && this.container.parentNode) {
+        this.container.parentNode.removeChild(this.container);
+    }
 }
 }
